@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5001:5001"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      - URL_BANCO_DE_DADOS=mongodb://mongo/tarefas
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27019:27019"  # Agora deve funcionar pois liberamos a porta
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
